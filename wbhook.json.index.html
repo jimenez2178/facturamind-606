@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Factura 606 - DGII</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .required::after {
+            content: " *";
+            color: #e74c3c;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .form-group.invalid input,
+        .form-group.invalid select,
+        .form-group.invalid textarea {
+            border-color: #e74c3c;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid #28a745;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-reset {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .field-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Factura 606</h1>
+            <p>Completa el formulario con los datos de tu factura</p>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            ✓ Formulario enviado exitosamente. Revisa tu correo electrónico.
+        </div>
+
+        <div class="info-box">
+            <strong>ℹ️ Información:</strong> Todos los campos marcados con * son obligatorios. Verifica que los datos sean correctos antes de enviar.
+        </div>
+
+        <form id="invoiceForm">
+            <!-- SECCIÓN 1: INFORMACIÓN DEL PROVEEDOR -->
+            <fieldset>
+                <legend style="font-weight: 700; color: #333; margin-bottom: 15px; font-size: 16px;">📊 Datos del Proveedor</legend>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="rnc" class="required">RNC Proveedor</label>
+                        <input type="text" id="rnc" name="rnc" placeholder="Ej: 123456789" maxlength="9">
+                        <span class="error" data-field="rnc">RNC inválido. Debe tener 9 dígitos</span>
+                        <div class="field-hint">Número de Registro Nacional (9 dígitos)</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="required">Email Proveedor</label>
+                        <input type="email" id="email" name="email" placeholder="correo@ejemplo.com">
+                        <span class="error" data-field="email">Email inválido</span>
+                    </div>
+                </div>
+
+                <div class="form-group form-row full">
+                    <label for="providerName" class="required">Nombre Comercial</label>
+                    <input type="text" id="providerName" name="providerName" placeholder="Nombre de la empresa o comercio">
+                    <span class="error" data-field="providerName">Este campo es requerido</span>
+                </div>
+            </fieldset>
+
+            <!-- SECCIÓN 2: INFORMACIÓN DEL CLIENTE -->
+            <fieldset style="margin-top: 25px;">
+                <legend style="font-weight: 700; color: #333; margin-bottom: 15px; font-size: 16px;">👤 Datos del Cliente</legend>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="clientRnc" class="required">RNC Cliente</label>
+                        <input type="text" id="clientRnc" name="clientRnc" placeholder="Ej: 987654321">
+                        <span class="error" data-field="clientRnc">RNC inválido. Debe tener 9 dígitos</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientName" class="required">Nombre Cliente</label>
+                        <input type="text" id="clientName" name="clientName" placeholder="Nombre del cliente">
+                        <span class="error" data-field="clientName">Este campo es requerido</span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- SECCIÓN 3: INFORMACIÓN DE LA FACTURA -->
+            <fieldset style="margin-top: 25px;">
+                <legend style="font-weight: 700; color: #333; margin-bottom: 15px; font-size: 16px;">💵 Datos de la Factura</legend>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ncf" class="required">NCF (Número Comprobante Fiscal)</label>
+                        <input type="text" id="ncf" name="ncf" placeholder="Ej: 01200000000001">
+                        <span class="error" data-field="ncf">NCF inválido. Debe tener 13 caracteres</span>
+                        <div class="field-hint">Número de 13 dígitos</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="invoiceDate" class="required">Fecha de la Factura</label>
+                        <input type="date" id="invoiceDate" name="invoiceDate">
+                        <span class="error" data-field="invoiceDate">Fecha inválida</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="invoiceAmount" class="required">Monto de la Factura</label>
+                        <input type="number" id="invoiceAmount" name="invoiceAmount" placeholder="0.00" step="0.01" min="0">
+                        <span class="error" data-field="invoiceAmount">Monto inválido. Debe ser mayor a 0</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="itbis" class="required">ITBIS (18%)</label>
+                        <input type="number" id="itbis" name="itbis" placeholder="0.00" step="0.01" min="0" readonly style="background-color: #f5f5f5;">
+                        <div class="field-hint">Se calcula automáticamente</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="invoiceType" class="required">Tipo de NCF</label>
+                        <select id="invoiceType" name="invoiceType">
+                            <option value="">-- Selecciona un tipo --</option>
+                            <option value="01">01 - Factura de Crédito Fiscal</option>
+                            <option value="02">02 - Factura de Consumo</option>
+                            <option value="03">03 - Nota de Débito</option>
+                            <option value="04">04 - Nota de Crédito</option>
+                        </select>
+                        <span class="error" data-field="invoiceType">Debes seleccionar un tipo</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseType" class="required">Tipo de Gasto</label>
+                        <select id="expenseType" name="expenseType">
+                            <option value="">-- Selecciona una categoría --</option>
+                            <option value="servicios">Servicios</option>
+                            <option value="bienes">Bienes</option>
+                            <option value="combustible">Combustible</option>
+                            <option value="utiles">Útiles y Suministros</option>
+                            <option value="mantenimiento">Mantenimiento</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                        <span class="error" data-field="expenseType">Debes seleccionar una categoría</span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- SECCIÓN 4: DESCRIPCIÓN -->
+            <fieldset style="margin-top: 25px;">
+                <legend style="font-weight: 700; color: #333; margin-bottom: 15px; font-size: 16px;">📝 Descripción</legend>
+
+                <div class="form-group form-row full">
+                    <label for="description">Descripción de los Productos/Servicios</label>
+                    <textarea id="description" name="description" placeholder="Describe brevemente qué incluye esta factura..."></textarea>
+                    <span class="error" data-field="description">Este campo no debe exceder 500 caracteres</span>
+                    <div class="field-hint" id="charCount">0 / 500 caracteres</div>
+                </div>
+            </fieldset>
+
+            <!-- BOTONES -->
+            <div class="button-group">
+                <button type="submit" class="btn-submit">📤 Enviar Factura</button>
+                <button type="reset" class="btn-reset">🔄 Limpiar Formulario</button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Procesando tu información...</p>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // ==================== CONFIGURACIÓN ====================
+        const N8N_WEBHOOK_URL = "/.netlify/functions/webhook";
+        
+        const form = document.getElementById('invoiceForm');
+        const successMessage = document.getElementById('successMessage');
+        const loadingDiv = document.getElementById('loading');
+
+        // ==================== VALIDACIONES ====================
+        const validations = {
+            rnc: {
+                validate: (value) => /^\d{9}$/.test(value),
+                message: "RNC debe tener 9 dígitos"
+            },
+            clientRnc: {
+                validate: (value) => /^\d{9}$/.test(value),
+                message: "RNC debe tener 9 dígitos"
+            },
+            email: {
+                validate: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+                message: "Email inválido"
+            },
+            ncf: {
+                validate: (value) => /^\d{13}$/.test(value),
+                message: "NCF debe tener 13 dígitos"
+            },
+            invoiceAmount: {
+                validate: (value) => parseFloat(value) > 0,
+                message: "El monto debe ser mayor a 0"
+            },
+            invoiceDate: {
+                validate: (value) => {
+                    const date = new Date(value);
+                    const today = new Date();
+                    return value && date <= today;
+                },
+                message: "La fecha no puede ser futura"
+            },
+            providerName: {
+                validate: (value) => value.trim().length > 0,
+                message: "Este campo es requerido"
+            },
+            clientName: {
+                validate: (value) => value.trim().length > 0,
+                message: "Este campo es requerido"
+            },
+            invoiceType: {
+                validate: (value) => value !== "",
+                message: "Debes seleccionar un tipo"
+            },
+            expenseType: {
+                validate: (value) => value !== "",
+                message: "Debes seleccionar una categoría"
+            }
+        };
+
+        // ==================== FUNCIONES DE VALIDACIÓN ====================
+        function validateField(fieldName) {
+            const field = document.getElementById(fieldName);
+            const errorElement = document.querySelector(`.error[data-field="${fieldName}"]`);
+            const formGroup = field.closest('.form-group');
+
+            if (!validations[fieldName]) return true;
+
+            const isValid = validations[fieldName].validate(field.value);
+
+            if (isValid) {
+                formGroup.classList.remove('invalid');
+                if (errorElement) errorElement.classList.remove('show');
+            } else {
+                formGroup.classList.add('invalid');
+                if (errorElement) {
+                    errorElement.textContent = validations[fieldName].message;
+                    errorElement.classList.add('show');
+                }
+            }
+
+            return isValid;
+        }
+
+        function validateForm() {
+            const fieldsToValidate = [
+                'rnc', 'email', 'providerName', 'clientRnc', 'clientName',
+                'ncf', 'invoiceDate', 'invoiceAmount', 'invoiceType', 'expenseType'
+            ];
+
+            return fieldsToValidate.every(field => validateField(field));
+        }
+
+        // ==================== CÁLCULO AUTOMÁTICO DEL ITBIS ====================
+        document.getElementById('invoiceAmount').addEventListener('change', function() {
+            const amount = parseFloat(this.value) || 0;
+            const itbis = amount * 0.18;
+            document.getElementById('itbis').value = itbis.toFixed(2);
+        });
+
+        // ==================== CONTADOR DE CARACTERES ====================
+        document.getElementById('description').addEventListener('input', function() {
+            const count = this.value.length;
+            document.getElementById('charCount').textContent = `${count} / 500 caracteres`;
+            
+            if (count > 500) {
+                this.value = this.value.substring(0, 500);
+            }
+        });
+
+        // ==================== VALIDACIÓN EN TIEMPO REAL ====================
+        Object.keys(validations).forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (field) {
+                field.addEventListener('blur', () => validateField(fieldName));
+                field.addEventListener('change', () => validateField(fieldName));
+            }
+        });
+
+        // ==================== ENVÍO DEL FORMULARIO ====================
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            successMessage.classList.remove('show');
+
+            if (!validateForm()) {
+                alert('Por favor, corrige los errores en el formulario');
+                return;
+            }
+
+            const formData = {
+                rnc: document.getElementById('rnc').value,
+                email: document.getElementById('email').value,
+                providerName: document.getElementById('providerName').value,
+                clientRnc: document.getElementById('clientRnc').value,
+                clientName: document.getElementById('clientName').value,
+                ncf: document.getElementById('ncf').value,
+                invoiceDate: document.getElementById('invoiceDate').value,
+                invoiceAmount: parseFloat(document.getElementById('invoiceAmount').value),
+                itbis: parseFloat(document.getElementById('itbis').value),
+                invoiceType: document.getElementById('invoiceType').value,
+                expenseType: document.getElementById('expenseType').value,
+                description: document.getElementById('description').value,
+                submittedAt: new Date().toISOString()
+            };
+
+            loadingDiv.style.display = 'block';
+
+            try {
+                const response = await fetch(N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    successMessage.classList.add('show');
+                    form.reset();
+                    document.getElementById('itbis').value = '0.00';
+                    document.getElementById('charCount').textContent = '0 / 500 caracteres';
+                    
+                    // Scroll hacia arriba para ver el mensaje de éxito
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    alert('Error al enviar el formulario. Intenta nuevamente.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión. Verifica tu conexión a internet.');
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
